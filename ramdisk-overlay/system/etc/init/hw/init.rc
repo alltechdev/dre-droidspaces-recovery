@@ -147,6 +147,10 @@ on fs && property:sys.usb.configfs=1
     write /config/usb_gadget/g1/strings/0x409/product ${ro.product.model}
     mkdir /config/usb_gadget/g1/functions/ffs.adb
     mkdir /config/usb_gadget/g1/functions/ffs.fastboot
+    # NCM: USB ethernet for tethering to a host
+    mkdir /config/usb_gadget/g1/functions/ncm.usb0
+    write /config/usb_gadget/g1/functions/ncm.usb0/host_addr DA:7E:D5:FF:FF:01
+    write /config/usb_gadget/g1/functions/ncm.usb0/dev_addr  DA:7E:D5:FF:FF:02
     mkdir /config/usb_gadget/g1/configs/b.1 0777 shell shell
     # Set current limit to 900mA (b/277022505)
     write /config/usb_gadget/g1/configs/b.1/MaxPower 0x384
@@ -216,6 +220,7 @@ on property:sys.usb.config=adb && property:sys.usb.ffs.ready=1 && property:sys.u
     write /config/usb_gadget/g1/idProduct 0x${ro.recovery.usb.adb.pid}
     write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "adb"
     symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f1
+    symlink /config/usb_gadget/g1/functions/ncm.usb0 /config/usb_gadget/g1/configs/b.1/f2
     write /config/usb_gadget/g1/UDC ${sys.usb.controller}
     setprop sys.usb.state ${sys.usb.config}
 
