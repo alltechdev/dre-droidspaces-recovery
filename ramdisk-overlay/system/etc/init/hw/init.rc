@@ -242,7 +242,7 @@ service recovery-console-bringup /system/bin/sh -c "sleep 2; start recovery-cons
     disabled
     seclabel u:r:recovery:s0
 
-service recovery-console /system/bin/recovery-console
+service recovery-console /system/bin/recovery-console --exec /system/bin/boot-ubuntu.sh
     user root
     group root
     oneshot
