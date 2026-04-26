@@ -1,0 +1,15 @@
+# External clones, large
+reference/
+
+# Stock binaries from device — don't ship LineageOS
+base/
+*.img
+
+# Build artifacts / transient
+work/
+out/
+kernel-Image-*
+
+# OS junk
+.DS_Store
+.claude/
