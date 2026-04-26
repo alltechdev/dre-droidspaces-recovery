@@ -52,6 +52,14 @@ if [ -d "$ROOT/patches" ]; then
 fi
 
 echo "==> Re-packing ramdisk (force root:root, since extract loses uid)"
+# Normalize perms before pack: cpio carries the source file's mode bits,
+# and Android init refuses to load init.rc when it's group-writable
+# (e.g. created under umask 0002 → 0664). Force 0644 on regular files
+# and 0755 on executables under our overlay so the rebuilt cpio's
+# entries match what stock vendor_boot ships.
+find "$WORK/vendor-boot-build/ramdisk/system/etc" -type f -exec chmod 0644 {} +
+find "$WORK/vendor-boot-build/ramdisk/system/bin" -type f -exec chmod 0755 {} +
+
 ( cd "$WORK/vendor-boot-build/ramdisk" && \
   find . | cpio -o -H newc -R 0:0 --reproducible 2>/dev/null > ../ramdisk.cpio.new )
 mv "$WORK/vendor-boot-build/ramdisk.cpio.new" "$WORK/vendor-boot-build/ramdisk.cpio"
