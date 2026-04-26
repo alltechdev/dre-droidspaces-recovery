@@ -1,0 +1,25 @@
+--- a/prop.default	2026-04-25 20:32:36.348800379 -0400
++++ b/prop.default	2026-04-25 20:32:36.348950109 -0400
+@@ -66,11 +66,11 @@
+ ro.actionable_compatible_property.enabled=true
+ persist.debug.dalvik.vm.core_platform_api_policy=just-warn
+ ro.postinstall.fstab.prefix=/system
+-ro.secure=1
++ro.secure=0
+ security.perf_harden=1
+ ro.allow.mock.location=0
+ dalvik.vm.lockprof.threshold=500
+-ro.debuggable=0
++ro.debuggable=1
+ net.bt.name=Android
+ ro.force.debuggable=0
+ ####################################
+@@ -612,7 +612,7 @@
+ ####################################
+ # from variable PRODUCT_SYSTEM_EXT_PROPERTIES
+ ####################################
+-ro.adb.secure=1
++ro.adb.secure=0
+ # end of file
+ #
+ # RECOVERY UI BUILD PROPERTIES

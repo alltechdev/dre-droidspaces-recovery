@@ -10,6 +10,16 @@ work/
 out/
 kernel-Image-*
 
+# Stray magiskboot unpack output (from ad-hoc exploration in repo root)
+/dtb
+/header
+/ramdisk.cpio
+/kernel
+/vendor_ramdisk/
+
+# Tools — user-supplied prebuilts, not redistributed
+tools/
+
 # OS junk
 .DS_Store
 .claude/

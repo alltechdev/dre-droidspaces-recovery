@@ -51,9 +51,9 @@ if [ -d "$ROOT/patches" ]; then
   done
 fi
 
-echo "==> Re-packing ramdisk"
+echo "==> Re-packing ramdisk (force root:root, since extract loses uid)"
 ( cd "$WORK/vendor-boot-build/ramdisk" && \
-  find . | cpio -o -H newc 2>/dev/null > ../ramdisk.cpio.new )
+  find . | cpio -o -H newc -R 0:0 --reproducible 2>/dev/null > ../ramdisk.cpio.new )
 mv "$WORK/vendor-boot-build/ramdisk.cpio.new" "$WORK/vendor-boot-build/ramdisk.cpio"
 
 echo "==> Repacking vendor_boot.img"
