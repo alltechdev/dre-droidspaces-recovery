@@ -82,6 +82,7 @@ on boot
     # service so it survives recovery-console session collapsing when
     # modem reconfigures USB during its boot.
     start wifi-bringup
+    start powerkeyd
 
 on firmware_mounts_complete
    rm /dev/.booting
@@ -264,10 +265,20 @@ service recovery-console /system/bin/recovery-console --exec /system/bin/boot-ub
 # pd-mapper + tqftpserv + force_powerup all subsystems + insmod wlan.ko.
 # Result is written to /tmp/persist/wifi-result.txt (persist partition,
 # mounted with sync) and survives reboots.
-service wifi-bringup /system/bin/sh -c "sleep 6; /linux/wifi-v13.sh"
+service wifi-bringup /system/bin/sh -c "sleep 6; /linux/wifi-bringup.sh"
     user root
     group root
     oneshot
+    disabled
+    seclabel u:r:recovery:s0
+
+# Droidspaces: power-key daemon. Holds a wake_lock so the device never
+# auto-sleeps; on KEY_POWER press, suspends; on resume, restores
+# brightness + touch (Novatek IC needs an explicit force_resume because
+# recovery-console drives DRM via legacy SETCRTC, not mdss_panel_notifier).
+service powerkeyd /system/bin/sh -c "/linux/powerkeyd.sh"
+    user root
+    group root
     disabled
     seclabel u:r:recovery:s0
 

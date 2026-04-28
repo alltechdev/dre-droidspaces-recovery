@@ -34,14 +34,18 @@ bootloader
           │                                   └─ exec's droidspaces with -r /linux/rootfs --foreground
           │                                       └─ Ubuntu systemd boots inside the container
           │                                           └─ /bin/sh on tty1 (visible on the panel)
-          ├─ on boot        → start wifi-bringup (sleep 6; /linux/wifi-v13.sh)
+          ├─ on boot        → start wifi-bringup (sleep 6; /linux/wifi-bringup.sh)
           │                       (force_powerup → wlan_pd → icnss → cnss-daemon → wlan.ko → wlan0)
           │                       (then auto-reconnect via /linux/wpa.conf if present)
+          ├─ on boot        → start powerkeyd (/linux/powerkeyd.sh)
+          │                       (holds wake_lock; on bl_power 4->0 wake transitions, fires
+          │                        /proc/touchpanel/force_resume; brightness keeper at 80%)
           └─ adb + USB NCM ethernet (gadget configfs setup)
 ```
 
-See [INIT-FLOW.md](INIT-FLOW.md) for the gory init.rc walk and
-[WIFI-BRINGUP.md](WIFI-BRINGUP.md) for the WLAN chain.
+See [INIT-FLOW.md](INIT-FLOW.md) for the gory init.rc walk,
+[WIFI-BRINGUP.md](WIFI-BRINGUP.md) for the WLAN chain,
+[POWER-AND-WAKE.md](POWER-AND-WAKE.md) for the power-button + touch-on-wake handling.
 
 ## Build pipeline
 

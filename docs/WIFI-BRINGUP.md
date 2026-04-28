@@ -2,13 +2,13 @@
 
 This recovery now brings the internal WiFi (`wlan0`) up automatically
 on boot. No Android WLAN stack is present — the orchestration runs
-from `/linux/wifi-v13.sh`, launched by the `wifi-bringup` init service
+from `/linux/wifi-bringup.sh`, launched by the `wifi-bringup` init service
 added to `init.rc`.
 
 ## init.rc service
 
 ```
-service wifi-bringup /system/bin/sh -c "sleep 6; /linux/wifi-v13.sh"
+service wifi-bringup /system/bin/sh -c "sleep 6; /linux/wifi-bringup.sh"
     user root
     group root
     oneshot
@@ -20,7 +20,7 @@ Started from `on boot` after `recovery-console-bringup`. The 6s sleep
 lets adsp/cdsp settle before the script starts force-powering
 peripherals.
 
-## What `/linux/wifi-v13.sh` does
+## What `/linux/wifi-bringup.sh` does
 
 1. Force-powers adsp/cdsp/modem via
    `/sys/bus/msm_subsys/devices/subsys*/force_powerup`.
@@ -77,6 +77,15 @@ binary that just needs:
 cal_report wire format is something kernel-side QMI can't reproduce
 (modem rejects with `INVALID_ARG (48)` / `ARG_TOO_LONG (19)`),
 so running the real daemon is the cleanest path.
+
+## Companion: powerkeyd
+
+A separate init service `powerkeyd` runs the
+[powerkeyd brightness + wake handler](POWER-AND-WAKE.md), wired up
+in the same `init.rc` patch. It holds the wake_lock that keeps the
+kernel from auto-sleeping, and re-fires `/proc/touchpanel/force_resume`
+on every wake so touch works after the panel comes back from
+recovery-console's blank.
 
 ## Removed: wifi-watchdog
 
