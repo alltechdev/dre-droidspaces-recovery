@@ -9,9 +9,10 @@ recovery-console as the on-panel UI with an on-screen keyboard.
 
 | repo | role | local path |
 |---|---|---|
-| [dre-droidspaces-kernel](https://github.com/alltechdev/dre-droidspaces-kernel) | reproducible kernel `Image` (Droidspaces patches + touch force-resume hook) | `~/dre` |
+| [dre-droidspaces-kernel](https://github.com/alltechdev/dre-droidspaces-kernel) | reproducible kernel `Image` (Droidspaces patches + touch force-resume + WCN3990 wifi-in-recovery hooks) | `~/dre` |
 | **dre-droidspaces-recovery** (this) | builds slot-B `boot.img` + `vendor_boot.img`, init.rc, scripts | `~/fromrecovery` |
 | [recovery-console (fork)](https://github.com/alltechdev/recovery-console) | the binary launched on the panel as the UI | `~/recovery-console` |
+| [cnss-stage](https://github.com/alltechdev/cnss-stage) | userspace WLAN orchestrator staging (`libperipheral_client` shim + cnss-daemon staging area) | `~/cnss-stage` |
 
 ## Boot-time flow (slot B)
 
@@ -33,10 +34,14 @@ bootloader
           │                                   └─ exec's droidspaces with -r /linux/rootfs --foreground
           │                                       └─ Ubuntu systemd boots inside the container
           │                                           └─ /bin/sh on tty1 (visible on the panel)
+          ├─ on boot        → start wifi-bringup (sleep 6; /linux/wifi-v13.sh)
+          │                       (force_powerup → wlan_pd → icnss → cnss-daemon → wlan.ko → wlan0)
+          │                       (then auto-reconnect via /linux/wpa.conf if present)
           └─ adb + USB NCM ethernet (gadget configfs setup)
 ```
 
-See [INIT-FLOW.md](INIT-FLOW.md) for the gory init.rc walk.
+See [INIT-FLOW.md](INIT-FLOW.md) for the gory init.rc walk and
+[WIFI-BRINGUP.md](WIFI-BRINGUP.md) for the WLAN chain.
 
 ## Build pipeline
 

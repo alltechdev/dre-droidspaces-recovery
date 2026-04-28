@@ -6,12 +6,17 @@ slot A keeps stock LineageOS, slot B boots Ubuntu desktop via Droidspaces contai
 ## Status
 
 - [x] Phase 0 — workspace init
-- [ ] Phase 1 — repack pipeline (no-op vendor_boot edit; flash + verify boot)
-- [ ] Phase 2 — selinux permissive + adb root + Android UI disabled
-- [ ] Phase 3 — recovery-console TTY rendering on screen
-- [ ] Phase 4 — Ubuntu container console-only
-- [ ] Phase 5 — Wayland desktop
-- [ ] Phase 6 — hardware (wifi/audio/touch into desktop)
+- [x] Phase 1 — repack pipeline (vendor_boot + boot rebuilt, flashable to slot B)
+- [x] Phase 2 — SELinux permissive + adb root + Android UI disabled
+- [x] Phase 3 — recovery-console rendering on the panel (forked binary
+       with on-screen keyboard + `/proc/touchpanel/force_resume` wakeup)
+- [x] Phase 4 — Ubuntu 24.04 container autoboots under recovery-console
+- [ ] Phase 5 — Wayland desktop (parked: Mesa freedreno can't drive
+       KGSL on this kernel; falls back to llvmpipe)
+- [x] Phase 6a — USB NCM ethernet alongside adb (10.7.7.x)
+- [x] Phase 6b — internal WiFi (WCN3990 → wlan0) auto-up on boot,
+       saved-network reconnect via `/linux/wpa.conf`
+       — see [docs/WIFI-BRINGUP.md](docs/WIFI-BRINGUP.md)
 
 ## Layout (committed)
 
