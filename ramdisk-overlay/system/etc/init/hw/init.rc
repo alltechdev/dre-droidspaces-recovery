@@ -78,6 +78,11 @@ on boot
     # shim sleeps briefly and triggers recovery-console, which kills it.
     start recovery-console-bringup
 
+    # Droidspaces: also kick off the wifi orchestrator. Runs as an init
+    # service so it survives recovery-console session collapsing when
+    # modem reconfigures USB during its boot.
+    start wifi-bringup
+
 on firmware_mounts_complete
    rm /dev/.booting
 
@@ -253,3 +258,16 @@ service recovery-console /system/bin/recovery-console --exec /system/bin/boot-ub
     oneshot
     disabled
     seclabel u:r:recovery:s0
+
+# Droidspaces: WiFi-in-recovery orchestrator. Runs after a 6s delay
+# (so adsp/cdsp/etc. have settled). Does the full chain: rmtfs +
+# pd-mapper + tqftpserv + force_powerup all subsystems + insmod wlan.ko.
+# Result is written to /tmp/persist/wifi-result.txt (persist partition,
+# mounted with sync) and survives reboots.
+service wifi-bringup /system/bin/sh -c "sleep 6; /linux/wifi-v13.sh"
+    user root
+    group root
+    oneshot
+    disabled
+    seclabel u:r:recovery:s0
+
