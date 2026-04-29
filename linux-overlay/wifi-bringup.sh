@@ -94,10 +94,29 @@ P "ifconfig wlan0 up"
 ifconfig wlan0 up 2>&1
 P "  rc=$?"
 
-# Auto-reconnect to saved network if /linux/wpa.conf exists.
+# Replace the broken /etc/resolv.conf symlink (-> /run/resolvconf/...)
+# with a real file. /run is tmpfs and resolvconf isn't installed, so
+# without this every chroot apt/curl/etc. fails with "Temporary failure
+# resolving". Write 1x; survives reboots since /linux/rootfs is on
+# data partition.
+if [ -L /linux/rootfs/etc/resolv.conf ] || [ ! -s /linux/rootfs/etc/resolv.conf ]; then
+    rm -f /linux/rootfs/etc/resolv.conf
+    printf 'nameserver 192.168.8.1\nnameserver 1.1.1.1\nnameserver 8.8.8.8\n' \
+        > /linux/rootfs/etc/resolv.conf
+    P "resolv.conf rewritten"
+fi
+
+# Auto-reconnect to saved network if /linux/wpa.conf exists. Retry
+# once if the first pass didn't get an IPv4 address — the most common
+# reason is wpa_supplicant racing with the radio coming up.
 if [ -f /linux/wpa.conf ] && [ -x /linux/wifi-connect.sh ]; then
     P "wifi-connect (saved)"
     /linux/wifi-connect.sh >> $R 2>&1
+    if ! ifconfig wlan0 2>/dev/null | grep -q "inet addr:"; then
+        P "  no IPv4 yet; retry"
+        sleep 3
+        /linux/wifi-connect.sh >> $R 2>&1
+    fi
 
     # NTP sync: recovery has no RTC backup, clock returns to 1970 every
     # boot. ntpdate is installed in the rootfs; sync once we have wifi

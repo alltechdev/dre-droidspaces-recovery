@@ -45,7 +45,8 @@ bootloader
 
 See [INIT-FLOW.md](INIT-FLOW.md) for the gory init.rc walk,
 [WIFI-BRINGUP.md](WIFI-BRINGUP.md) for the WLAN chain,
-[POWER-AND-WAKE.md](POWER-AND-WAKE.md) for the power-button + touch-on-wake handling.
+[POWER-AND-WAKE.md](POWER-AND-WAKE.md) for the power-button + touch-on-wake handling,
+[GPU.md](GPU.md) for hardware-accelerated EGL/GLES on Adreno 619.
 
 ## Build pipeline
 

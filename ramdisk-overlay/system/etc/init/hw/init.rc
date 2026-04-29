@@ -1,6 +1,13 @@
 import /init.recovery.${ro.hardware}.rc
 
 on early-init
+    # Disable kernel printk ratelimiting so init's "starting service"
+    # logs don't get silently dropped — making it possible to debug
+    # why a service in `on boot` didn't fire.
+    write /proc/sys/kernel/printk_ratelimit 0
+    write /proc/sys/kernel/printk_ratelimit_burst 1000
+
+
     # Set the security context of /postinstall if present.
     restorecon /postinstall
 
@@ -83,6 +90,13 @@ on boot
     # modem reconfigures USB during its boot.
     start wifi-bringup
     start powerkeyd
+
+# `start gpu-bringup` directly in `on boot` was being silently
+# dropped (printk ratelimiting + apparent action-queue limit). Hook
+# it off the powerkeyd service-state property — fires reliably as
+# soon as powerkeyd transitions to running.
+on property:init.svc.powerkeyd=running
+    start gpu-bringup
 
 on firmware_mounts_complete
    rm /dev/.booting
@@ -254,6 +268,17 @@ service recovery-console-bringup /system/bin/sh -c "sleep 2; start recovery-cons
     seclabel u:r:recovery:s0
 
 service recovery-console /system/bin/recovery-console --exec /system/bin/boot-ubuntu.sh
+    user root
+    group root
+    oneshot
+    disabled
+    seclabel u:r:recovery:s0
+
+# Droidspaces: GPU-stack bringup. Mounts binderfs (exposes hwbinder
+# + vndbinder), creates /vendor/lib64/{egl,hw} symlinks/copies to the
+# Adreno user-space stack staged on /linux/gpu/, and runs egl-smoke
+# to confirm GPU acceleration. Idempotent.
+service gpu-bringup /system/bin/sh -c "sleep 3; /linux/gpu-bringup.sh"
     user root
     group root
     oneshot
